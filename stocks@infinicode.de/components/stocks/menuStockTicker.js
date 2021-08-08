@@ -213,10 +213,8 @@ var MenuStockTicker = GObject.registerClass({
   }
 
   _createMinimalTickerItemBox (quoteSummary) {
-    let { symbol, currencySymbol, price, change } = this._generateTickerInformation(quoteSummary)
+    let { price, change } = this._generateTickerInformation(quoteSummary)
     const quoteColorStyleClass = getStockColorStyleClass(change)
-
-    currencySymbol = currencySymbol || ''
 
     const stockInfoBox = new St.BoxLayout({
       style_class: 'stock-info-box compact',
@@ -225,24 +223,15 @@ var MenuStockTicker = GObject.registerClass({
       y_expand: true
     })
 
-    const stockNameLabel = new St.Label({
-      y_align: Clutter.ActorAlign.CENTER,
-      y_expand: true,
-      style_class: 'ticker-stock-name-label',
-      text: symbol
-    })
-
     const stockQuoteLabel = new St.Label({
       y_align: Clutter.ActorAlign.CENTER,
       y_expand: true,
       style_class: `ticker-stock-quote-label fwb ${quoteColorStyleClass}`,
-      text: `${roundOrDefault(price)}${currencySymbol}`
+      text: `${roundOrDefault(price)}`
     })
 
-    stockNameLabel.get_clutter_text().set_ellipsize(Pango.EllipsizeMode.NONE)
     stockQuoteLabel.get_clutter_text().set_ellipsize(Pango.EllipsizeMode.NONE)
 
-    stockInfoBox.add_child(stockNameLabel)
     stockInfoBox.add_child(stockQuoteLabel)
 
     return stockInfoBox
