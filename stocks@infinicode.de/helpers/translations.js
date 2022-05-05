@@ -39,7 +39,8 @@ var Translations = {
       COMPACT: _('Compact'),
       REGULAR: _('Regular'),
       TREMENDOUS: _('Tremendous'),
-      MINIMAL: _('Minimal')
+      MINIMAL: _('Minimal'),
+      CUSTOM: _('Custom')
     },
     TICKER_STOCK_AMOUNT_LABEL: _('Items to show in ticker'),
     TICKER_INTERVAL_LABEL: _('Stock Panel Ticker Interval in Seconds'),
