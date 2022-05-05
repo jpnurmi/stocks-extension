@@ -55,6 +55,7 @@ class GeneralPreferenceGroup extends Adw.PreferencesGroup {
     tickerDisplayVariations.append(Translations.SETTINGS.TICKER_DISPLAY_VARIATION.REGULAR)
     tickerDisplayVariations.append(Translations.SETTINGS.TICKER_DISPLAY_VARIATION.TREMENDOUS)
     tickerDisplayVariations.append(Translations.SETTINGS.TICKER_DISPLAY_VARIATION.MINIMAL)
+    tickerDisplayVariations.append(Translations.SETTINGS.TICKER_DISPLAY_VARIATION.CUSTOM)
 
     const tickerDisplayVariationRow = new Adw.ComboRow({
       title: Translations.SETTINGS.TICKER_DISPLAY_VARIATION.TITLE,

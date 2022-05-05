@@ -10,6 +10,7 @@
         <value value="1" nick="regular"/>
         <value value="2" nick="tremendous"/> <!-- :D -->
         <value value="3" nick="minimal"/>
+        <value value="4" nick="custom"/>
     </enum>
     <enum id="org.gnome.shell.extensions.stocks.provider">
         <value value="0" nick="yahoo"/>

@@ -7,6 +7,7 @@ const Me = ExtensionUtils.getCurrentExtension()
 
 const { setTimeout, clearTimeout } = Me.imports.helpers.components
 const { roundOrDefault, getStockColorStyleClass, isNullOrEmpty } = Me.imports.helpers.data
+const { parseRichText } = Me.imports.helpers.richTextParser
 
 const {
   SettingsHandler,
@@ -35,7 +36,15 @@ const TICKER_ITEM_VARIATION = {
   COMPACT: 0,
   REGULAR: 1,
   TREMENDOUS: 2,
-  MINIMAL: 3
+  MINIMAL: 3,
+  CUSTOM: 4
+}
+
+const TICKER_STYLE_CLASSES = {
+  'b': 'fwb',
+  'p': 'separator',
+  'strong': 'fwb',
+  'small': 'small-text',
 }
 
 var MenuStockTicker = GObject.registerClass({
@@ -43,32 +52,37 @@ var MenuStockTicker = GObject.registerClass({
 }, class MenuStockTicker extends St.BoxLayout {
   _init () {
     super._init({
-      style_class: 'menu-stock-ticker',
-      y_align: Clutter.ActorAlign.CENTER,
-      reactive: true
+      // style_class: 'menu-stock-ticker',
+      // y_align: Clutter.ActorAlign.CENTER,
+      // reactive: true
     })
 
-    this._visibleStockIndex = 0
-    this._toggleDisplayTimeout = null
-    this._settingsChangedId = null
-    this._showLoadingInfoTimeoutId = null
+    const label = new St.Label()
+    label.get_clutter_text().set_markup('wtf <span foreground="red">Red</span> <b>bold</b>')
+    this.add_child(label)
 
-    this._settings = new SettingsHandler()
 
-    this._sync()
+    // this._visibleStockIndex = 0
+    // this._toggleDisplayTimeout = null
+    // this._settingsChangedId = null
+    // this._showLoadingInfoTimeoutId = null
 
-    this.connect('destroy', this._onDestroy.bind(this))
-    this.connect('button-press-event', this._onPress.bind(this))
+    // this._settings = new SettingsHandler()
 
-    this._settingsChangedId = this._settings.connect('changed', (value, key) => {
-      this._registerTimeout(false)
+    // this._sync()
 
-      if (SETTING_KEYS_TO_REFRESH.includes(key)) {
-        this._sync()
-      }
-    })
+    // this.connect('destroy', this._onDestroy.bind(this))
+    // this.connect('button-press-event', this._onPress.bind(this))
 
-    this._registerTimeout(false)
+    // this._settingsChangedId = this._settings.connect('changed', (value, key) => {
+    //   this._registerTimeout(false)
+
+    //   if (SETTING_KEYS_TO_REFRESH.includes(key)) {
+    //     this._sync()
+    //   }
+    // })
+
+    // this._registerTimeout(false)
   }
 
   async _sync () {
@@ -95,25 +109,29 @@ var MenuStockTicker = GObject.registerClass({
   _createMenuTicker ({ quoteSummaries }) {
     this.destroy_all_children()
 
-    const tickerItemCreationFn = this._getTickerItemCreationFunction()
+    const label = new St.Label()
+    label.get_clutter_text().set_markup('<span foreground="red">Red</span> <b>bold</b>')
+    this.add_child(label)
 
-    quoteSummaries.forEach((quoteSummary, index) => {
-      const stockTickerItemBox = tickerItemCreationFn.call(this, quoteSummary)
-      this.add_child(stockTickerItemBox)
+    // const tickerItemCreationFn = this._getTickerItemCreationFunction()
 
-      if (index + 1 !== quoteSummaries.length) {
-        const separatorBin = new St.Bin({
-          style_class: 'separator-bin',
-          y_align: Clutter.ActorAlign.CENTER,
-          child: new St.Label({
-            style_class: 'separator',
-            text: '|'
-          })
-        })
+    // quoteSummaries.forEach((quoteSummary, index) => {
+    //   const stockTickerItemBox = tickerItemCreationFn.call(this, quoteSummary)
+    //   this.add_child(stockTickerItemBox)
 
-        this.add_child(separatorBin)
-      }
-    })
+    //   if (index + 1 !== quoteSummaries.length) {
+    //     const separatorBin = new St.Bin({
+    //       style_class: 'separator-bin',
+    //       y_align: Clutter.ActorAlign.CENTER,
+    //       child: new St.Label({
+    //         style_class: 'separator',
+    //         text: '|'
+    //       })
+    //     })
+
+    //     this.add_child(separatorBin)
+    //   }
+    // })
   }
 
   _createCompactTickerItemBox (quoteSummary) {
@@ -248,6 +266,94 @@ var MenuStockTicker = GObject.registerClass({
     return stockInfoBox
   }
 
+  _createCustomTickerItemBox (quoteSummary) {
+    // TODO: settings
+    const template = '<small><b>{name}</b><br/>{quote}{currency} ({change}{currency} | {percent}%)</small>'
+    // const template = '<p>{symbol}</p>{quote}<small>{currency} ({change}{currency} {percent}%)</small>'
+    // const template = '<b>{symbol}<b> {quote}<small>{currency}</small>'
+    // const template = '{quote}'
+
+    const { name, currencySymbol, price, change, changePercent, symbol } = this._generateTickerInformation(quoteSummary)
+
+    const vbox = new St.BoxLayout({
+      vertical: true,
+      //style_class: 'stock-info-box',
+    })
+
+
+    // function colorize (text) {
+    //   return 
+
+    //   return getStockColorStyleClass(change)
+    // }
+
+    // const lines = template.split('<br/>')
+    // for (const line of lines) {
+    //   const label = new St.Label({
+    //     text: block.text.replaceAll('{name}', name)
+    //       .replaceAll('{symbol}', symbol)
+    //       .replaceAll('{currency}', currencySymbol || '')
+    //       .replaceAll('{quote}', price)
+    //       .replaceAll('{change}', roundOrDefault(change))
+    //       .replaceAll('{percent}', roundOrDefault(changePercent)),
+    //   });
+    //   vbox.add_child(label);
+    // }
+
+    const label = new St.Label()
+    label.get_clutter_text().set_markup('<span foreground="red">Red</span> <b>bold</b>')
+    return label;
+
+
+    //label.get_clutter_text().set_color(new Clutter.Color({ red: 0, green: 255, blue: 0, alpha: 255 }))
+    //label.get_clutter_text().set_color(Clutter.Color.from_string('#ff00ffff'))
+    // let color = new Clutter.Color()
+    // color.from_string('red')
+    // label.get_clutter_text().set_color(color)
+
+    vbox.add_child(label)
+
+    //label.get_clutter_text().set_markup('<span size="xx-small">first</span><br/><span size="xx-small">second</span>')
+    // label.get_clutter_text().set_ellipsize(Pango.EllipsizeMode.NONE)
+
+
+    // let hbox = new St.BoxLayout()
+
+
+
+    // const blocks = parseRichText(template)
+    // for (const block of blocks) {
+    //   if (block.flags.has('br')) {
+    //     vbox.add_child(hbox)
+    //     hbox = new St.BoxLayout()
+    //   } else {
+    //     let styleClasses = [...block.flags.values()].map((flag) => TICKER_STYLE_CLASSES[flag])
+
+    //     // colorize the label if it includes any of the following variables
+    //     if (['{quote}', '{change}', '{currency}', '{percent}'].some((v) => block.text.includes(v))) {
+    //       styleClasses.push(getStockColorStyleClass(change))
+    //     }
+
+    //     const label = new St.Label({
+    //       text: block.text.replaceAll('{name}', name)
+    //         .replaceAll('{symbol}', symbol)
+    //         .replaceAll('{currency}', currencySymbol || '')
+    //         .replaceAll('{quote}', price)
+    //         .replaceAll('{change}', roundOrDefault(change))
+    //         .replaceAll('{percent}', roundOrDefault(changePercent)),
+    //       style_class: styleClasses.join(' '),
+    //       y_align: Clutter.ActorAlign.END, // baseline-aligned normal vs. small text
+    //     });
+    //     label.get_clutter_text().set_ellipsize(Pango.EllipsizeMode.NONE)
+
+    //     hbox.add_child(label)
+    //   }
+    // }
+    // vbox.add_child(hbox)
+
+    return vbox
+  }
+
   _showInfoMessage (message) {
     this.destroy_all_children()
 
@@ -322,6 +428,9 @@ var MenuStockTicker = GObject.registerClass({
 
       case TICKER_ITEM_VARIATION.MINIMAL:
         return this._createMinimalTickerItemBox
+
+      case TICKER_ITEM_VARIATION.CUSTOM:
+        return this._createCustomTickerItemBox
 
       default:
       case TICKER_ITEM_VARIATION.REGULAR:
